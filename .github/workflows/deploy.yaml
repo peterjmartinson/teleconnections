@@ -1,0 +1,54 @@
+name: Deploy Teleconnections
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    if: |
+      github.event_name == 'workflow_dispatch' || (
+        github.event_name == 'pull_request' && github.event.pull_request.merged == true
+      )
+
+    steps:
+      - name: Checkout Code to Workspace
+        uses: actions/checkout@v4
+
+      - name: Deploy and Sync
+        id: deploy
+        run: |
+          set -e
+          RELEASES_BASE="/home/peter/Code/teleconnections_releases"
+          LIVE_PATH="/home/peter/Code/teleconnections_live"
+          export PATH="/home/peter/.local/bin:$PATH"
+          export UV_NO_INTERACTIVE=1
+
+          # 1. Calculate Release Directory
+          RELEASE_DIR="$RELEASES_BASE/release_$(date +%Y%m%d%H%M%S)"
+          echo "Deploying to: $RELEASE_DIR"
+          mkdir -p "$RELEASE_DIR"
+
+          # 2. Sync Files (Excluding local dev artifacts)
+          rsync -a --exclude='env' --exclude='.venv' --exclude='__pycache__' --exclude='.git' "$GITHUB_WORKSPACE/" "$RELEASE_DIR/"
+
+          # 3. UV Sync
+          cd "$RELEASE_DIR"
+          uv sync --frozen
+
+          # 4. Ensure SQLite schema & teleconnection metadata exist in ~/database/climate.db
+          uv run python scripts/init_db.py || true
+
+          # 5. Atomic Switch
+          ln -snf "$RELEASE_DIR" "$LIVE_PATH"
+
+      - name: Cleanup Old Releases
+        run: |
+          RELEASES_BASE="/home/peter/Code/teleconnections_releases"
+          cd "$RELEASES_BASE"
+          # Keep the 3 most recent release directories
+          ls -dt release_* 2>/dev/null | tail -n +4 | xargs -r rm -rf
