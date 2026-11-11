@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project]
+name = "teleconnections"
+version = "0.1.0"
+description = "Historical climate teleconnection and local ERA5 climatology database builder for Screamsheet"
+readme = "README.md"
+requires-python = "~=3.12.0"
+dependencies = [
+    "certifi==2025.8.3",
+    "charset-normalizer==3.4.3",
+    "idna==3.10",
+    "iniconfig==2.1.0",
+    "numpy==2.2.6",
+    "packaging==25.0",
+    "pandas==2.3.1",
+    "pluggy==1.6.0",
+    "pygments==2.19.2",
+    "pytest==8.4.2",
+    "python-dateutil==2.9.0.post0",
+    "pytz==2025.2",
+    "pyyaml==6.0.3",
+    "requests==2.32.5",
+    "setuptools==80.9.0",
+    "six==1.17.0",
+    "tzdata==2025.2",
+    "urllib3==2.5.0",
+    "wheel==0.45.1",
+]
+
+[project.scripts]
+teleclim-init-db = "teleclim.cli:init_db_main"
+teleclim-bootstrap-indices = "teleclim.cli:bootstrap_indices_main"
+teleclim-bootstrap-location = "teleclim.cli:bootstrap_location_main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

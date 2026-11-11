@@ -218,3 +218,12 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Teleconnections data & local SQLite databases
+data/*.db
+data/*.db-*
+data/raw/era5/*
+!data/raw/era5/.gitkeep
+data/raw/indices/*
+!data/raw/indices/.gitkeep
+logfiles/

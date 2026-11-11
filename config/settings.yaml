@@ -1,0 +1,39 @@
+# Teleconnection Climatology Builder configuration
+#
+# Database path resolution order:
+#   1. TELECLIM_DB environment variable (if set)
+#   2. database.path below (if non-empty and not __DB_PATH__)
+#   3. Platform default: ~/database/climate.db (Linux/macOS) or C:/database/climate.db (Windows)
+database:
+  path: ""
+
+# Historical ERA5 ingestion configuration
+era5:
+  # "open_meteo" (default, fast archive API serving Copernicus ERA5 + ERA5T with no token required)
+  # or "cds" (Copernicus Climate Data Store API via cdsapi, requires ~/.cdsapirc)
+  provider: "open_meteo"
+  history_start: "1979-01-01"
+  # Leave history_end empty to default to (today - lag_days) so 2026+ data is included automatically
+  history_end: ""
+  finalization_lag_days: 5
+  raw_cache_dir: "data/raw/era5"
+
+# Global teleconnection & MJO ingestion configuration
+indices:
+  raw_cache_dir: "data/raw/indices"
+  ao_url: "https://ftp.cpc.ncep.noaa.gov/cwlinks/norm.daily.ao.cdas.z1000.19500101_current.csv"
+  nao_url: "https://ftp.cpc.ncep.noaa.gov/cwlinks/norm.daily.nao.cdas.z500.19500101_current.csv"
+  pna_url: "https://ftp.cpc.ncep.noaa.gov/cwlinks/norm.daily.pna.cdas.z500.19500101_current.csv"
+  nino34_url: "https://www.cpc.ncep.noaa.gov/data/indices/detrend.nino34.ascii.txt"
+  mjo_bom_url: "http://www.bom.gov.au/clim_data/IDCKGEM000/rmm.74toRealtime.txt"
+  mjo_psl_fallback_url: "https://psl.noaa.gov/mjo/mjoindex/romi.cpcolr.1x.txt"
+
+# Climatology & composite analysis settings
+analysis:
+  climatology_window_days: 15
+  mjo_active_amplitude: 1.0
+  lag_windows:
+    - [0, 5]
+    - [6, 10]
+    - [11, 15]
+    - [16, 20]
